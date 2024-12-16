@@ -16,7 +16,7 @@ DdddOcr = ddddocr.DdddOcr()
 
 from const import VK_CODE, BALANCE_CONTROL_ID_GROUP
 
-sleep_time = 0.2
+sleep_time = 0.5
 refresh_sleep_time = 0.5
 retry_time = 10
 
@@ -518,6 +518,7 @@ class ThsAuto:
         win32gui.SetForegroundWindow(hwnd)
         os.system('echo off | clip')
         hot_key(['ctrl', 'c'])
+        time.sleep(sleep_time)
         self.input_ocr()
 
     def input_ocr(self):  
