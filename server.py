@@ -20,6 +20,22 @@ def run_client():
 lock = threading.Lock()
 next_time = 0
 interval = 0.5
+
+VALID_TOKEN = "DSTdqw3Poq1mBzjY8OEUv6Zjl1JAHYoc"
+def validate_token():
+    token = request.headers.get('Authorization')
+    if token and token == f"Bearer {VALID_TOKEN}":
+        return True
+    return False
+
+def require_token(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not validate_token():
+            return jsonify({"code":1, "status": "unauthorized", "msg": "invalid or missing token"}), 401
+        return func(*args, **kwargs)
+    return wrapper
+
 def interval_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -39,36 +55,41 @@ def interval_call(func):
         return rt
     return wrapper
 
-@app.route('/thsauto/balance', methods = ['GET'])
+@app.route('/balance', methods = ['GET'])
 @interval_call
+@require_token
 def get_balance():
     auto.active_mian_window()
     result = auto.get_balance()
     return jsonify(result), 200
 
-@app.route('/thsauto/position', methods = ['GET'])
+@app.route('/position', methods = ['GET'])
 @interval_call
+@require_token
 def get_position():
     auto.active_mian_window()
     result = auto.get_position()
     return jsonify(result), 200
 
-@app.route('/thsauto/orders/active', methods = ['GET'])
+@app.route('/success_orders', methods = ['GET'])
 @interval_call
+@require_token
 def get_active_orders():
     auto.active_mian_window()
     result = auto.get_active_orders()
     return jsonify(result), 200
 
-@app.route('/thsauto/orders/filled', methods = ['GET'])
+@app.route('/filled_orders', methods = ['GET'])
 @interval_call
+@require_token
 def get_filled_orders():
     auto.active_mian_window()
     result = auto.get_filled_orders()
     return jsonify(result), 200
 
-@app.route('/thsauto/sell', methods = ['GET'])
+@app.route('/sell', methods = ['GET'])
 @interval_call
+@require_token
 def sell():
     auto.active_mian_window()
     stock = request.args['stock_no']
@@ -79,8 +100,9 @@ def sell():
     result = auto.sell(stock_no=stock, amount=int(amount), price=price)
     return jsonify(result), 200
 
-@app.route('/thsauto/buy', methods = ['GET'])
+@app.route('/buy', methods = ['GET'])
 @interval_call
+@require_token
 def buy():
     auto.active_mian_window()
     stock = request.args['stock_no']
@@ -91,8 +113,9 @@ def buy():
     result = auto.buy(stock_no=stock, amount=int(amount), price=price)
     return jsonify(result), 200
 
-@app.route('/thsauto/buy/kc', methods = ['GET'])
+@app.route('/buy/kc', methods = ['GET'])
 @interval_call
+@require_token
 def buy_kc():
     auto.active_mian_window()
     stock = request.args['stock_no']
@@ -103,8 +126,9 @@ def buy_kc():
     result = auto.buy_kc(stock_no=stock, amount=int(amount), price=price)
     return jsonify(result), 200
 
-@app.route('/thsauto/sell/kc', methods = ['GET'])
+@app.route('/sell/kc', methods = ['GET'])
 @interval_call
+@require_token
 def sell_kc():
     auto.active_mian_window()
     stock = request.args['stock_no']
@@ -115,24 +139,27 @@ def sell_kc():
     result = auto.sell_kc(stock_no=stock, amount=int(amount), price=price)
     return jsonify(result), 200
 
-@app.route('/thsauto/cancel', methods = ['GET'])
+@app.route('/cancel_entrust', methods = ['GET'])
 @interval_call
+@require_token
 def cancel():
     auto.active_mian_window()
     entrust_no = request.args['entrust_no']
     result = auto.cancel(entrust_no=entrust_no)
     return jsonify(result), 200
 
-@app.route('/thsauto/client/kill', methods = ['GET'])
+@app.route('/client_exit', methods = ['GET'])
 @interval_call
+@require_token
 def kill_client():
     auto.active_mian_window()
     auto.kill_client()
     return jsonify({'code': 0, 'status': 'succeed'}), 200
 
 
-@app.route('/thsauto/client/restart', methods = ['GET'])
+@app.route('/client_restart', methods = ['GET'])
 @interval_call
+@require_token
 def restart_client():
     auto.active_mian_window()
     auto.kill_client()
@@ -147,6 +174,7 @@ def restart_client():
 
 @app.route('/thsauto/test', methods = ['GET'])
 @interval_call
+@require_token
 def test():
     auto.active_mian_window()
     auto.test()
