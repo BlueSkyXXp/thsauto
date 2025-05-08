@@ -10,6 +10,20 @@ import os
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
+# 定义一个自定义的 JSON 编码器
+class ORJSONEncoder:
+    @staticmethod
+    def default(obj):
+        # 可以根据需要添加自定义的序列化逻辑
+        return str(obj)
+
+    @classmethod
+    def encode(cls, obj):
+        return orjson.dumps(obj, default=cls.default).decode('utf-8')
+
+# 替换 Flask 的 JSON 编码器
+app.json_encoder = ORJSONEncoder
+
 auto = ThsAuto()
 
 client_path = None

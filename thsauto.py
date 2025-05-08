@@ -519,7 +519,7 @@ class ThsAuto:
         os.system('echo off | clip')
         hot_key(['ctrl', 'c'])
         # hot_key(['alt', 'c'])
-        time.sleep(sleep_time)
+        # time.sleep(sleep_time)
         self.input_ocr()
 
     def input_ocr(self):  
